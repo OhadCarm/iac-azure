@@ -24,27 +24,27 @@ storage-account/
 # 1. Log in (interactive — run yourself; in Claude Code type: ! az login)
 az login
 
-# 2. Create a resource group (a container for resources)
-az group create --name rg-learn-arm --location eastus
+# 2. Create the resource group (a container for resources) — already created: ohadca-test-group
+az group create --name ohadca-test-group --location eastus
 
 # 3a. Deploy the simple template
 az deployment group create \
-  --resource-group rg-learn-arm \
+  --resource-group ohadca-test-group \
   --template-file storage-account/simple.json
 
 # 3b. Or deploy the parameterized template
 az deployment group create \
-  --resource-group rg-learn-arm \
+  --resource-group ohadca-test-group \
   --template-file storage-account/with-parameters.json \
   --parameters storage-account/with-parameters.parameters.json
 ```
 
 ## See it in the Azure dashboard
 
-Go to <https://portal.azure.com> → search **Resource groups** → open **rg-learn-arm**. Your storage account is listed inside. The **Deployments** blade shows each deployment's inputs and outputs.
+Go to <https://portal.azure.com> → search **Resource groups** → open **ohadca-test-group**. Your storage account is listed inside. The **Deployments** blade shows each deployment's inputs and outputs.
 
 ## Clean up (avoid charges)
 
 ```
-az group delete --name rg-learn-arm --yes --no-wait
+az group delete --name ohadca-test-group --yes --no-wait
 ```
