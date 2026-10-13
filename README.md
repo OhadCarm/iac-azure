@@ -9,6 +9,9 @@ storage-account/
   simple.json                      # 1 resource, hardcoded values, no parameters
   with-parameters.json             # 1 resource, values passed in as parameters
   with-parameters.parameters.json  # the parameter values
+functions/
+  parameters-and-variables.json    # parameters composed inside variables
+  logical-functions.json           # if / equals / guid / concat
 ```
 
 ## storage-account
@@ -16,7 +19,22 @@ storage-account/
 - **`simple.json`** — the minimal template: `$schema`, `contentVersion`, and one `resources` entry with everything hardcoded. Easiest to read.
 - **`with-parameters.json`** — same resource, but name/location/SKU come from `parameters`, so you can reuse the template with different values.
 
-> Storage account names are **globally unique** (across all of Azure), 3-24 lowercase letters/numbers. If a deploy fails with a name-already-taken error, change the name (`learnarmsimple001` in `simple.json`, or the value in the `.parameters.json` file).
+> Storage account names are **globally unique** (across all of Azure), 3-24 lowercase letters/numbers. If a deploy fails with a name-already-taken error, change the name (`ohadcalearnarmsimple001` in `simple.json`, or the value in the `.parameters.json` file).
+
+## functions
+
+Learning ARM **template functions** (expressions written inside `[...]`). Every file here is an ARM template that deploys one storage account; the difference is *how the values are built*.
+
+- **`parameters-and-variables.json`** — builds the name from parameters *inside* variables (and a variable inside a variable): `concat`, `toLower`, `uniqueString`. Name looks like `ohadca<env><hash>`.
+- **`logical-functions.json`** — decision functions: `equals` + `if` to pick SKU/tier by environment (the `environment` parameter drives the SKU, **not** the name), plus the `[guid(concat(parameters('cmk_keyvault'), 'KeyVaultCryptoUser'))]` pattern (a deterministic GUID — commonly used as a role-assignment name). The GUID is exposed as an output. Name looks like `ohadcalogic<hash>`.
+
+Deploy any of them the same way, e.g.:
+
+```
+az deployment group create \
+  --resource-group ohadca-test-group \
+  --template-file functions/logical-functions.json
+```
 
 ## Deploy
 

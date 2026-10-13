@@ -1,0 +1,57 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "projectName": {
+      "type": "string",
+      "defaultValue": "ohadca",
+      "maxLength": 8,
+      "metadata": {
+        "description": "Short lowercase project/owner prefix."
+      }
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "dev",
+      "allowedValues": [
+        "dev",
+        "test",
+        "prod"
+      ]
+    }
+  },
+  "variables": {
+    "uniqueSuffix": "[uniqueString(resourceGroup().id)]",
+    "displayName": "[concat(parameters('projectName'), '-', parameters('environment'))]",
+    "storageAccountName": "[toLower(concat(parameters('projectName'), parameters('environment'), variables('uniqueSuffix')))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "publicNetworkAccess": "Disabled"
+      },
+      "tags": {
+        "displayName": "[variables('displayName')]",
+        "environment": "[parameters('environment')]"
+      }
+    }
+  ],
+  "outputs": {
+    "storageAccountName": {
+      "type": "string",
+      "value": "[variables('storageAccountName')]"
+    },
+    "displayName": {
+      "type": "string",
+      "value": "[variables('displayName')]"
+    }
+  }
+}

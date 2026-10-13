@@ -1,0 +1,58 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": {
+      "type": "string",
+      "defaultValue": "dev",
+      "allowedValues": [
+        "dev",
+        "prod"
+      ]
+    },
+    "cmk_keyvault": {
+      "type": "string",
+      "defaultValue": "ohadca-kv",
+      "metadata": {
+        "description": "A Key Vault name. Used here only to build a deterministic GUID, to show the guid(concat(...)) pattern."
+      }
+    }
+  },
+  "variables": {
+    "isProd": "[equals(parameters('environment'), 'prod')]",
+    "storageSku": "[if(variables('isProd'), 'Standard_GRS', 'Standard_LRS')]",
+    "accessTier": "[if(variables('isProd'), 'Hot', 'Cool')]",
+    "roleAssignmentName": "[guid(concat(parameters('cmk_keyvault'), 'KeyVaultCryptoUser'))]",
+    "storageAccountName": "[toLower(concat('ohadcalogic', uniqueString(resourceGroup().id)))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "[variables('storageSku')]"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "publicNetworkAccess": "Disabled",
+        "accessTier": "[variables('accessTier')]"
+      }
+    }
+  ],
+  "outputs": {
+    "chosenSku": {
+      "type": "string",
+      "value": "[variables('storageSku')]"
+    },
+    "isProduction": {
+      "type": "bool",
+      "value": "[variables('isProd')]"
+    },
+    "deterministicGuid": {
+      "type": "string",
+      "value": "[variables('roleAssignmentName')]"
+    }
+  }
+}
