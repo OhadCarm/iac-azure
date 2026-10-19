@@ -1,0 +1,75 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workload": {
+      "type": "string",
+      "defaultValue": "ohadca",
+      "maxLength": 8,
+      "metadata": {
+        "description": "Short lowercase workload/owner name."
+      }
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "dev",
+      "allowedValues": [
+        "dev",
+        "test",
+        "prod"
+      ]
+    }
+  },
+  "functions": [
+    {
+      "namespace": "custom",
+      "members": {
+        "storageName": {
+          "parameters": [
+            { "name": "workload", "type": "string" },
+            { "name": "env", "type": "string" },
+            { "name": "uniquePart", "type": "string" }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[toLower(take(concat(parameters('workload'), parameters('env'), parameters('uniquePart')), 24))]"
+          }
+        },
+        "skuForEnv": {
+          "parameters": [
+            { "name": "env", "type": "string" }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[if(equals(parameters('env'), 'prod'), 'Standard_GRS', 'Standard_LRS')]"
+          }
+        }
+      }
+    }
+  ],
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[custom.storageName(parameters('workload'), parameters('environment'), uniqueString(resourceGroup().id, 'custom-function'))]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "[custom.skuForEnv(parameters('environment'))]"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "publicNetworkAccess": "Disabled"
+      }
+    }
+  ],
+  "outputs": {
+    "storageAccountName": {
+      "type": "string",
+      "value": "[custom.storageName(parameters('workload'), parameters('environment'), uniqueString(resourceGroup().id, 'custom-function'))]"
+    },
+    "chosenSku": {
+      "type": "string",
+      "value": "[custom.skuForEnv(parameters('environment'))]"
+    }
+  }
+}

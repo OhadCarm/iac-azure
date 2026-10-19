@@ -12,6 +12,7 @@ storage-account/
 functions/
   parameters-and-variables.json    # parameters composed inside variables
   logical-functions.json           # if / equals / guid / concat
+  custom-function.json             # user-defined (custom) functions
 ```
 
 ## storage-account
@@ -27,6 +28,7 @@ Learning ARM **template functions** (expressions written inside `[...]`). Every 
 
 - **`parameters-and-variables.json`** — builds the name from parameters *inside* variables (and a variable inside a variable): `concat`, `toLower`, `uniqueString`. Name looks like `ohadca<env><hash>`.
 - **`logical-functions.json`** — decision functions: `equals` + `if` to pick SKU/tier by environment (the `environment` parameter drives the SKU, **not** the name), plus the `[guid(concat(parameters('cmk_keyvault'), 'KeyVaultCryptoUser'))]` pattern (a deterministic GUID — commonly used as a role-assignment name). The GUID is exposed as an output. Name looks like `ohadcalogic<hash>`.
+- **`custom-function.json`** — **user-defined functions**: your own reusable functions declared in the top-level `functions` section and called as `namespace.name(args)`. Here `custom.storageName(...)` builds+truncates the name and `custom.skuForEnv(...)` picks the SKU. Gotcha: a UDF can't read template variables, can't call another UDF, and can't use `reference`/`list*` — so we compute `uniqueString(...)` in the resource and *pass it in* as an argument.
 
 Deploy any of them the same way, e.g.:
 
