@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "Three user-assigned managed identities whose names use ONLY parameters/variables/concat/uniqueString (no resourceGroup). The prefix uniquestring1/2/3 marks which declaration built each one. Covers single-, two-, and three-argument uniqueString."
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus"
+    },
+    "nameFromParam": {
+      "type": "string",
+      "defaultValue": "[concat('uniquestring2-', uniqueString('ohadca', 'two'))]",
+      "metadata": {
+        "description": "Default uses uniqueString with TWO arguments. Resource 2's name is [parameters('nameFromParam')]."
+      }
+    }
+  },
+  "variables": {
+    "nameFromVar": "[concat('uniquestring3-', uniqueString('ohadca', 'three', 'extra'))]"
+  },
+  "resources": [
+    {
+      "comments": "Resource 1 — name built DIRECTLY: concat + uniqueString (single argument)",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[concat('uniquestring1-', uniqueString('ohadca-one'))]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "comments": "Resource 2 — name via PARAMETER whose default uses uniqueString with two arguments",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[parameters('nameFromParam')]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "comments": "Resource 3 — name via VARIABLE using uniqueString with three arguments",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[variables('nameFromVar')]",
+      "location": "[parameters('location')]"
+    }
+  ],
+  "outputs": {
+    "name1_direct": {
+      "type": "string",
+      "value": "[concat('uniquestring1-', uniqueString('ohadca-one'))]"
+    },
+    "name2_fromParam": {
+      "type": "string",
+      "value": "[parameters('nameFromParam')]"
+    },
+    "name3_fromVar": {
+      "type": "string",
+      "value": "[variables('nameFromVar')]"
+    }
+  }
+}
