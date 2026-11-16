@@ -1,0 +1,96 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "Resource names built from parameter member/index access: parameters('obj').id (object property) and parameters('arr')[0] (array element). Useful coverage for ARM name-expression analysis."
+  },
+  "parameters": {
+    "storageConfig": {
+      "type": "object",
+      "defaultValue": {
+        "id": "ohadcaobjid0001",
+        "sku": "Standard_LRS"
+      },
+      "metadata": {
+        "description": "Object parameter. Its .id property is used directly as a storage account name."
+      }
+    },
+    "storageNames": {
+      "type": "array",
+      "defaultValue": [
+        "ohadcaarr00001",
+        "ohadcaarr10001"
+      ],
+      "metadata": {
+        "description": "Array of strings. Individual elements are used as storage account names via [index]."
+      }
+    }
+  },
+  "resources": [
+    {
+      "comments": "Name via OBJECT PROPERTY access: parameters('storageConfig').id",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[parameters('storageConfig').id]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "[parameters('storageConfig').sku]"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "allowBlobPublicAccess": false,
+        "publicNetworkAccess": "Disabled"
+      }
+    },
+    {
+      "comments": "Name via ARRAY INDEX access: parameters('storageNames')[0]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[parameters('storageNames')[0]]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "allowBlobPublicAccess": false,
+        "publicNetworkAccess": "Disabled"
+      }
+    },
+    {
+      "comments": "Name via ARRAY INDEX access: parameters('storageNames')[1]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[parameters('storageNames')[1]]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "allowBlobPublicAccess": false,
+        "publicNetworkAccess": "Disabled"
+      }
+    }
+  ],
+  "outputs": {
+    "nameFromObjectProperty": {
+      "type": "string",
+      "value": "[parameters('storageConfig').id]"
+    },
+    "nameFromArrayIndex0": {
+      "type": "string",
+      "value": "[parameters('storageNames')[0]]"
+    },
+    "nameFromArrayIndex1": {
+      "type": "string",
+      "value": "[parameters('storageNames')[1]]"
+    }
+  }
+}

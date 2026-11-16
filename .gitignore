@@ -1,2 +1,10 @@
 # JetBrains IDE settings
 .idea/
+
+# macOS
+.DS_Store
+
+# Azure portal downloads (deployment history / exported templates)
+deployments/
+Deployment-*/
+ExportedTemplate-*/
