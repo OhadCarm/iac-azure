@@ -1,0 +1,81 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "Three storage accounts whose names use the ARM functions split and last: one using split, one using last, one using both. Names are self-identifying (contain split/last/both) and policy-compliant."
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus"
+    },
+    "lastNameParts": {
+      "type": "array",
+      "defaultValue": [ "discard1", "discard2", "ohadcalastsa0001" ],
+      "metadata": {
+        "description": "Array whose LAST element is used as the second resource's name."
+      }
+    }
+  },
+  "resources": [
+    {
+      "comments": "SPLIT: name = split('ohadcasplitsa0001-discard', '-')[0]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[split('ohadcasplitsa0001-discard', '-')[0]]",
+      "location": "[parameters('location')]",
+      "sku": { "name": "Standard_LRS" },
+      "kind": "StorageV2",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "allowBlobPublicAccess": false,
+        "publicNetworkAccess": "Disabled"
+      }
+    },
+    {
+      "comments": "LAST: name = last(parameters('lastNameParts'))",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[last(parameters('lastNameParts'))]",
+      "location": "[parameters('location')]",
+      "sku": { "name": "Standard_LRS" },
+      "kind": "StorageV2",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "allowBlobPublicAccess": false,
+        "publicNetworkAccess": "Disabled"
+      }
+    },
+    {
+      "comments": "BOTH: name = last(split('x.y.ohadcabothsa0001', '.'))",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[last(split('x.y.ohadcabothsa0001', '.'))]",
+      "location": "[parameters('location')]",
+      "sku": { "name": "Standard_LRS" },
+      "kind": "StorageV2",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "allowBlobPublicAccess": false,
+        "publicNetworkAccess": "Disabled"
+      }
+    }
+  ],
+  "outputs": {
+    "nameFromSplit": {
+      "type": "string",
+      "value": "[split('ohadcasplitsa0001-discard', '-')[0]]"
+    },
+    "nameFromLast": {
+      "type": "string",
+      "value": "[last(parameters('lastNameParts'))]"
+    },
+    "nameFromBoth": {
+      "type": "string",
+      "value": "[last(split('x.y.ohadcabothsa0001', '.'))]"
+    }
+  }
+}
