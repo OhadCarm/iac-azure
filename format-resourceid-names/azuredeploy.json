@@ -1,0 +1,74 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "Three storage accounts whose names use the ARM functions format and resourceId: one with format, one with resourceId, one with both. resourceId returns a full resource path, so for a valid storage name it is wrapped in uniqueString (the canonical pattern)."
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus"
+    }
+  },
+  "resources": [
+    {
+      "comments": "FORMAT: name = format('ohadcafmtsa{0}', '0001')",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[format('ohadcafmtsa{0}', '0001')]",
+      "location": "[parameters('location')]",
+      "sku": { "name": "Standard_LRS" },
+      "kind": "StorageV2",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "allowBlobPublicAccess": false,
+        "publicNetworkAccess": "Disabled"
+      }
+    },
+    {
+      "comments": "RESOURCEID: name = concat('rid', uniqueString(resourceId('Microsoft.Storage/storageAccounts', 'ohadcaridbase')))",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[concat('rid', uniqueString(resourceId('Microsoft.Storage/storageAccounts', 'ohadcaridbase')))]",
+      "location": "[parameters('location')]",
+      "sku": { "name": "Standard_LRS" },
+      "kind": "StorageV2",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "allowBlobPublicAccess": false,
+        "publicNetworkAccess": "Disabled"
+      }
+    },
+    {
+      "comments": "BOTH: name = format('both{0}', uniqueString(resourceId('Microsoft.Storage/storageAccounts', 'ohadcabothbase')))",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[format('both{0}', uniqueString(resourceId('Microsoft.Storage/storageAccounts', 'ohadcabothbase')))]",
+      "location": "[parameters('location')]",
+      "sku": { "name": "Standard_LRS" },
+      "kind": "StorageV2",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "allowBlobPublicAccess": false,
+        "publicNetworkAccess": "Disabled"
+      }
+    }
+  ],
+  "outputs": {
+    "nameFromFormat": {
+      "type": "string",
+      "value": "[format('ohadcafmtsa{0}', '0001')]"
+    },
+    "nameFromResourceId": {
+      "type": "string",
+      "value": "[concat('rid', uniqueString(resourceId('Microsoft.Storage/storageAccounts', 'ohadcaridbase')))]"
+    },
+    "nameFromBoth": {
+      "type": "string",
+      "value": "[format('both{0}', uniqueString(resourceId('Microsoft.Storage/storageAccounts', 'ohadcabothbase')))]"
+    }
+  }
+}
