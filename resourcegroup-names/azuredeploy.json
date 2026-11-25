@@ -1,0 +1,63 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "Resources whose names use resourceGroup(). Pure (no other functions): resourceGroup().name and resourceGroup().location as managed-identity names. With other functions: uniqueString(resourceGroup().id) as a storage name, and format(resourceGroup().location, uniqueString(resourceGroup().id)). resourceGroup().id cannot be a name on its own (it is a slash-delimited path), so it is always wrapped."
+  },
+  "resources": [
+    {
+      "comments": "PURE resourceGroup().name — no other functions (managed identity: allows hyphens)",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[resourceGroup().name]",
+      "location": "[resourceGroup().location]"
+    },
+    {
+      "comments": "PURE resourceGroup().location — no other functions",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[resourceGroup().location]",
+      "location": "[resourceGroup().location]"
+    },
+    {
+      "comments": "resourceGroup().id WITH other functions — the canonical uniqueString(resourceGroup().id) storage pattern",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "[concat('rgid', uniqueString(resourceGroup().id))]",
+      "location": "[resourceGroup().location]",
+      "sku": { "name": "Standard_LRS" },
+      "kind": "StorageV2",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "supportsHttpsTrafficOnly": true,
+        "allowBlobPublicAccess": false,
+        "publicNetworkAccess": "Disabled"
+      }
+    },
+    {
+      "comments": "COMBINED — resourceGroup().location + resourceGroup().id with format + uniqueString",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[format('rg-{0}-{1}', resourceGroup().location, uniqueString(resourceGroup().id))]",
+      "location": "[resourceGroup().location]"
+    }
+  ],
+  "outputs": {
+    "nameFromRgName": {
+      "type": "string",
+      "value": "[resourceGroup().name]"
+    },
+    "nameFromRgLocation": {
+      "type": "string",
+      "value": "[resourceGroup().location]"
+    },
+    "nameFromRgIdUnique": {
+      "type": "string",
+      "value": "[concat('rgid', uniqueString(resourceGroup().id))]"
+    },
+    "nameCombined": {
+      "type": "string",
+      "value": "[format('rg-{0}-{1}', resourceGroup().location, uniqueString(resourceGroup().id))]"
+    }
+  }
+}
